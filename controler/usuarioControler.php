@@ -1,18 +1,6 @@
 <?php
-
-class Usuario
+class UsuarioControler
 {
-
-    public $id;
-    public $nome;
-    public $senha;
-    public $data_nasc;
-    public $email;
-    public $foto_perfil;
-    public $tel;
-    public $cpf;
-    public $ativo;
-
     public function getALL()
     {
         try {
@@ -44,7 +32,7 @@ class Usuario
             throw new Exception("erro ao buscar usuario" . $e->getMessage());
         }
     }
-    public function add()
+    public function add(Usuario $user)
     {
         try {
             $sql = "INSERT INTO usuario 
@@ -53,14 +41,14 @@ class Usuario
                     (null, :nome, :senha, :data_nasc, :email, :foto_perfil, :tel, :cpf, :ativo)";
             $dao = new DAO;
             $stman = $dao->conecta()->prepare($sql);
-            $stman->bindParam(":nome", $this->nome);
-            $stman->bindParam(":senha", md5($this->senha));
-            $stman->bindParam(":data_nasc", $this->formatDateBD($this->data_nasc));
-            $stman->bindParam(":email", $this->email);
-            $stman->bindParam(":foto_perfil", $this->foto_perfil);
-            $stman->bindParam(":tel", $this->tel);
-            $stman->bindParam(":cpf", $this->cpf);
-            $stman->bindParam(":ativo", $this->ativo);
+            $stman->bindParam(":nome", $user->nome);
+            $stman->bindParam(":senha", md5($user->senha));
+            $stman->bindParam(":data_nasc", $this->formatDateBD($user->data_nasc));
+            $stman->bindParam(":email", $user->email);
+            $stman->bindParam(":foto_perfil", $user->foto_perfil);
+            $stman->bindParam(":tel", $user->tel);
+            $stman->bindParam(":cpf", $user->cpf);
+            $stman->bindParam(":ativo", $user->ativo);
             $stman->execute();
         } catch (Exception $e) {
             throw new Exception("Erro ao cadastra o usuario: " . $e->getMessage());
