@@ -1,8 +1,9 @@
 <?php
 include_once "./config/config.php";
-require_once "./controler/usuarioControler.php";
+
 require_once "./app/services/DAO.php";
 require_once "./app/models/usuario.php";
+require_once "./app/controler/usuarioControler.php";
 
 //phpinfo();
 try {
@@ -11,28 +12,27 @@ try {
     $method = $_SERVER["REQUEST_METHOD"];
 
     $url = explode("/", $_GET["url"]);
+    //localhost/api/usuario/list
+    //localhost/api/usuario/get/1
+    //var_dump($url);
 
-    if ($method == "GET") { //Pesquisa
+    $result = null;
+    //Pesquisa
+    if ($method == "GET") {
         header("Content-Type: application/json; charset=UTF-8");
-        //localhost/api/usuario/list
-
-        //var_dump($url);
-        $result = null;
-
         switch ($url[0]) {
             case "usuario":
                 switch ($url[1]) {
                     case "get": {
-                            if (!isset($url{
-                                2})) throw new Exception();
-                            $user = new Usuario;
-                            $result = $user->get($url[2]);
+                            if (!isset($url[2])) throw new Exception();
+                            $userController = new usuarioController;
+                            $result = $userController->get($url[2]);
                         }
                         break;
 
                     case "list": {
-                            $user = new Usuario;
-                            $result = $user->getAll();
+                            $userController = new usuarioController;
+                            $result = $userController->getAll();
                         }
                         break;
 
@@ -51,24 +51,27 @@ try {
         }
 
         http_response_code(200);
-        echo json_encode($result);
+        echo json_encode(array("result" => $result));
     }
 
-    if ($method == "POST") { //Cadastros e Atualizações
+    //Cadastros e Atualizações
+    if ($method == "POST") {
         header("Content-Type: application/json; charset=UTF-8");
         switch ($url[0]) {
             case "usuario":
                 switch ($url[1]) {
-                    case "add": {
-                            $dadosUser = json_decode(file_get_contents('php://input'));
-                            $user = new Usuario;
-                            $user = $dadosUser;
-                            $usuarioControl = new UsuarioControler;
-                            $result = $usuarioControl->add($user);
-                            //$result = $user->add();
+                    case 'add':
+                    case 'update':
+                        $dadosUser = json_decode(file_get_contents('php://input')); //tranformar JSON do body em Objetos
+                        $userControler = new UsuarioController;
+                        $user = new Usuario;
+                        $user->popo($dadosUser);
+                        if ($user->id != null) {
+                            $result = $userControler->update($user);
+                        } else {
+                            $result = $userControler->add($user);
                         }
                         break;
-
                     default:
                         throw new Exception();
                         break;
@@ -81,9 +84,10 @@ try {
         }
 
         http_response_code(200);
-        echo "Entra de um POST";
+        //echo "Entra de um POST";
+        echo json_encode(array("result" => $result));
     }
 } catch (Exception $e) {
     http_response_code(404);
-    echo json_encode(array("mensagem" => "Pagina não encontrada!"));
+    echo json_encode(array("result" => "Pagina não encontrada!"));
 }
