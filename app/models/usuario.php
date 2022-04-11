@@ -1,8 +1,6 @@
 <?php
-
 class Usuario
 {
-
     public $id;
     public $nome;
     public $senha;
@@ -13,63 +11,17 @@ class Usuario
     public $cpf;
     public $ativo;
 
-    public function getALL()
+    public function popo($dadosUser)
     {
-        try {
-            $dao = new DAO;
-            $conn = $dao->conecta();
-            $sql = "select * from usuario";
-            $stman = $conn->prepare($sql);
-            $stman->execute();
-            $result = $stman->fetchAll();
-            return $result;
-        } catch (Exception $e) {
-
-            throw new Exception("erro ao buscar usuario" . $e->getMessage());
-        }
-    }
-
-    public function get($id)
-    {
-        try {
-            $sql = "select * from usuario where id = :id";
-            $dao = new DAO;
-            $stman = $dao->conecta()->prepare($sql);
-            $stman->bindParam(":id", $id);
-            $stman->execute();
-            $result = $stman->fetchAll();
-            return $result;
-        } catch (Exception $e) {
-
-            throw new Exception("erro ao buscar usuario" . $e->getMessage());
-        }
-    }
-    public function add()
-    {
-        try {
-            $sql = "INSERT INTO usuario 
-                    (id, nome, senha, data_nasc, email, fotoPerfil, tel, cpf, ativo) 
-                    VALUES
-                    (null, :nome, :senha, :data_nasc, :email, :foto_perfil, :tel, :cpf, :ativo)";
-            $dao = new DAO;
-            $stman = $dao->conecta()->prepare($sql);
-            $stman->bindParam(":nome", $this->nome);
-            $stman->bindParam(":senha", md5($this->senha));
-            $stman->bindParam(":data_nasc", $this->formatDateBD($this->data_nasc));
-            $stman->bindParam(":email", $this->email);
-            $stman->bindParam(":foto_perfil", $this->foto_perfil);
-            $stman->bindParam(":tel", $this->tel);
-            $stman->bindParam(":cpf", $this->cpf);
-            $stman->bindParam(":ativo", $this->ativo);
-            $stman->execute();
-        } catch (Exception $e) {
-            throw new Exception("Erro ao cadastra o usuario: " . $e->getMessage());
-        }
-    }
-
-    private  function  formatDateBD($date)
-    { // Entrada: DD/MM/YYYY -> YYYY/MM/DD
-        $partDate = explode("/", $date);
-        return new DateTime($partDate[2] . "-" . $partDate[1] . "-" . $partDate[0]);
+        //Popular o objeto usuario ($dadosUser para $user)
+        $this->id = $dadosUser->id; //"id": null,
+        $this->nome = $dadosUser->nome;   // "nome": "Silvia Cristina",
+        $this->email = $dadosUser->email; // "email": "sc@email.com",
+        $this->senha = $dadosUser->senha; // "senha": "123@123",
+        $this->data_nasc = $dadosUser->data_nasc; // "data_nasc": "12/05/2010",
+        $this->foto_perfil = $dadosUser->foto_perfil; // "foto_perfil": "",
+        $this->tel = $dadosUser->tel;   // "tel": "5555-666666",
+        $this->cpf = $dadosUser->cpf;   // "cpf": "12312312344",
+        $this->ativo = $dadosUser->ativo; // "ativo": 1            
     }
 }
