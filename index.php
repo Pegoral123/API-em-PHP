@@ -36,6 +36,11 @@ try {
                         }
                         break;
 
+                          case "listnot": {
+                            $userController = new usuarioController;
+                            $result = $userController->getAll(0);
+                        } 
+                           break;
                     default:
                         throw new Exception();
                         break;
@@ -71,16 +76,54 @@ try {
                         } else {
                             $result = $userControler->add($user);
                         }
-                        break;
+                
+                        break;  
+                          case "login": {
+                                 $dadosUser = json_decode(file_get_contents('php://input'));
+                            $userController = new UsuarioController;
+                            $result = $userController->login($dadosUser->usuario,$dadosUser->senha);
+                        } 
+                           break;
                     default:
                         throw new Exception();
                         break;
                 }
                 break;
+                default:
+                    throw new Exception();
+                    break;
+                  
+          
+
+          
+        }
+
+        http_response_code(200);
+        //echo "Entra de um POST";
+        echo json_encode(array("result" => $result));
+    }
+
+     if ($method == "DELETE") {
+        header("Content-Type: application/json; charset=UTF-8");
+        switch ($url[0]) {
+            case "usuario":
+                switch ($url[1]) {
+                    case 'delete':
+                   if (!isset($url[2])) throw new Exception();
+                   $usuarioController= new UsuarioController;
+                    $result= $usuarioController->delete($url[2]);
+                     
+                       break;
 
             default:
                 throw new Exception();
+                break;        
+                }
                 break;
+                  default:
+                   throw new Exception();
+                break;  
+           
         }
 
         http_response_code(200);

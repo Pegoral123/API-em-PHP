@@ -2,14 +2,15 @@
 
 class UsuarioController
 {
-    public function getAll()
+    public function getAll($ativo=1)
     {
         try {
             $dao = new DAO;
-            $sql = "select * from usuario";
+            $sql = "SELECT * FROM usuario WHERE ativo = :ativo";
             $conn = $dao->conecta();
             $stman = $conn->prepare($sql);
             //$stman = $dao->conecta()->prepare($sql);
+               $stman->bindParam(":ativo", $ativo);
             $stman->execute();
             $result = $stman->fetchAll();
             return $result;
@@ -21,7 +22,7 @@ class UsuarioController
     public function get($id)
     {
         try {
-            $sql = "select * from usuario where id = :id";
+            $sql = "SELECT * FROM usuario WHERE id = :id end ativo <> 0";
             $dao = new DAO;
             $stman = $dao->conecta()->prepare($sql);
             $stman->bindParam(":id", $id);
@@ -37,7 +38,7 @@ class UsuarioController
     {
         try {
             $sql = "INSERT INTO usuario 
-                    (id, nome, senha, data_nasc, email, fotoPerfil, tel, cpf, ativo) 
+                    (id, nome, senha, data_nasc, email, foto_perfil, tel, cpf, ativo) 
                     VALUES
                     (null, :nome, md5(:senha), :data_nasc, :email, :foto_perfil, :tel, :cpf, :ativo)";
             //$senhaCryp = md5($user->senha);
@@ -68,7 +69,7 @@ class UsuarioController
                     senha = md5(:senha),
                     data_nasc = :data_nasc,
                     email = :email,
-                    fotoPerfil = :foto_perfil,
+                    foto_perfil = :foto_perfil,
                     tel = :tel,
                     cpf = :cpf, 
                     ativo = :ativo
@@ -94,6 +95,39 @@ class UsuarioController
         }
     }
 
+     public function delete ( $id)
+    {
+        try {
+            // $sql = "DELETE  FROM usuario WHERE id = :id";
+            $sql = "UPDATE usuario SET ativo=0 WHERE id = :id";
+            $dao = new DAO;
+            $stman = $dao->conecta()->prepare($sql);
+            $stman->bindParam(":id", $id);
+            $stman->execute();
+            $result = $stman->fetchALL();
+            return $result;
+        } catch (Exception $e) {
+            throw new Exception("Erro ao deletar o usuario: " . $e->getMessage());
+        }
+    }
+
+    public function login($usuario, $pass) {
+      try {
+            // $sql = "DELETE  FROM usuario WHERE id = :id";
+            $sql = "SELECT id,email,nome FROM usuario WHERE email = :email end  senha = md5(:senha)";
+             $senhaCryp = crypt($pass, '$5$rounds=5000$' . $usuario . '$');
+            $dao = new DAO;
+            $stman = $dao->conecta()->prepare($sql);
+            $stman->bindParam(":email", $usuario);
+            $stman->bindParam(":senha", $senhaCryp);
+            $stman->execute();
+            $result = $stman->fetchALL();
+            return $result;        
+        } catch (Exception $e) {
+            throw new Exception("Erro ao logar o usuario: " . $e->getMessage());
+        }
+
+    }
 
     private  function  formatDateBD($date)
     { // Entrada: DD/MM/YYYY -> YYYY/MM/DD
