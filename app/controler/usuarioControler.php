@@ -22,7 +22,7 @@ class UsuarioController
     public function get($id)
     {
         try {
-            $sql = "SELECT * FROM usuario WHERE id = :id end ativo <> 0";
+            $sql = "SELECT * FROM usuario WHERE id = :id and ativo <> 0";
             $dao = new DAO;
             $stman = $dao->conecta()->prepare($sql);
             $stman->bindParam(":id", $id);
@@ -114,15 +114,19 @@ class UsuarioController
     public function login($usuario, $pass) {
       try {
             // $sql = "DELETE  FROM usuario WHERE id = :id";
-            $sql = "SELECT id,email,nome FROM usuario WHERE email = :email end  senha = md5(:senha)";
+            $sql = "SELECT id,email,nome FROM usuario WHERE email = :email and  senha = md5(:senha)";
              $senhaCryp = crypt($pass, '$5$rounds=5000$' . $usuario . '$');
             $dao = new DAO;
             $stman = $dao->conecta()->prepare($sql);
             $stman->bindParam(":email", $usuario);
             $stman->bindParam(":senha", $senhaCryp);
             $stman->execute();
-            $result = $stman->fetchALL();
-            return $result;        
+            $user = $stman->fetchALL();
+            if (count($user) > 0) {
+                //var_dump($user);
+                $user["token"] = generateJWT($user[0]);
+            }
+            return $user;                
         } catch (Exception $e) {
             throw new Exception("Erro ao logar o usuario: " . $e->getMessage());
         }

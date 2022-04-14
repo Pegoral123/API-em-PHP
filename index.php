@@ -5,19 +5,33 @@ require_once "./app/services/DAO.php";
 require_once "./app/models/usuario.php";
 require_once "./app/controler/usuarioControler.php";
 
-//phpinfo();
-try {
-    if (count($_REQUEST) == 0) throw new Exception();
 
-    $method = $_SERVER["REQUEST_METHOD"];
+// phpinfo();
+// try {
+//     if (count($_REQUEST) == 0) throw new Exception();
 
-    $url = explode("/", $_GET["url"]);
+//     $method = $_SERVER["REQUEST_METHOD"];
+
+//     $url = explode("/", $_GET["url"]);
+
     //localhost/api/usuario/list
     //localhost/api/usuario/get/1
     //var_dump($url);
 
+    
+    $method = $_SERVER["REQUEST_METHOD"];
+    
+    $url = explode("/", $_SERVER["REQUEST_URI"]);
+    
+    if (count($url) == 0) throw new Exception();
+    
+    array_shift($url); 
+    array_shift($url);
+    
     $result = null;
+
     //Pesquisa
+    try { 
     if ($method == "GET") {
         header("Content-Type: application/json; charset=UTF-8");
         switch ($url[0]) {
