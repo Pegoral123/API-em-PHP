@@ -2,7 +2,7 @@
 
 class UsuarioController
 {
-    public function getAll($ativo=1)
+    public function getAll($ativo = 1)
     {
         try {
             $dao = new DAO;
@@ -10,7 +10,7 @@ class UsuarioController
             $conn = $dao->conecta();
             $stman = $conn->prepare($sql);
             //$stman = $dao->conecta()->prepare($sql);
-               $stman->bindParam(":ativo", $ativo);
+            $stman->bindParam(":ativo", $ativo);
             $stman->execute();
             $result = $stman->fetchAll();
             return $result;
@@ -95,7 +95,7 @@ class UsuarioController
         }
     }
 
-     public function delete ( $id)
+    public function delete($id)
     {
         try {
             // $sql = "DELETE  FROM usuario WHERE id = :id";
@@ -111,11 +111,12 @@ class UsuarioController
         }
     }
 
-    public function login($usuario, $pass) {
-      try {
+    public function logon($usuario, $pass)
+    {
+        try {
             // $sql = "DELETE  FROM usuario WHERE id = :id";
             $sql = "SELECT id,email,nome FROM usuario WHERE email = :email and  senha = md5(:senha)";
-             $senhaCryp = crypt($pass, '$5$rounds=5000$' . $usuario . '$');
+            $senhaCryp = crypt($pass, '$5$rounds=5000$' . $usuario . '$');
             $dao = new DAO;
             $stman = $dao->conecta()->prepare($sql);
             $stman->bindParam(":email", $usuario);
@@ -126,11 +127,10 @@ class UsuarioController
                 //var_dump($user);
                 $user["token"] = generateJWT($user[0]);
             }
-            return $user;                
+            return $user;
         } catch (Exception $e) {
             throw new Exception("Erro ao logar o usuario: " . $e->getMessage());
         }
-
     }
 
     private  function  formatDateBD($date)

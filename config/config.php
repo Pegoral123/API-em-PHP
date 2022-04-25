@@ -6,8 +6,10 @@ ini_set("display_startup_errors", 1);
 ini_set("enable_post_data_reading", 1);
 
 define("DRIVE", "mysql");
-define("HOST","localhost");
+define("HOST", "localhost");
 define("PORT", "3306");
 define("USER", "root");
 define("PASS", "");
 define("DB", "loja-exemplo");
+
+define("KEY", "ff08e69475562803be134abe13fbd09f27356cfd14944353e789a9afa4661a70");

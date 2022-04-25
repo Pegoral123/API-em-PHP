@@ -3,7 +3,7 @@
 function generateJWT($dados)
 {
     //Application Key
-    $key = "ff08e69475562803be134abe13fbd09f27356cfd14944353e789a9afa4661a70"; // loja - exemplo
+    $key = KEY; // loja - exemplo
 
     //Header Token
     $header = [
@@ -13,9 +13,10 @@ function generateJWT($dados)
 
     //Payload - Content
     $payload = [
-        'exp' => (new DateTime("now"))->getTimestamp(),
+        'exp' => (new DateTime("now"))->getTimestamp(), //tempo em segundos a partir de 1/1/1970
         'uid' => $dados->id,
         'email' => $dados->email,
+        'name' => $dados->nome,
     ];
 
     //JSON
@@ -32,30 +33,28 @@ function generateJWT($dados)
 
     //Token
     $token = $header . '.' . $payload . '.' . $sign;
-    $x = validJWT($token);
-    var_dump($x);
 
     return $token;
 }
 
 function validJWT($token)
 {
-    $key = 'ff08e69475562803be134abe13fbd09f27356cfd14944353e789a9afa4661a70';
+    $key = KEY;
+
+    $token =  str_replace(["Bearer", " "], "", $token);
 
     $partes = explode(".", $token);
 
-    $header = base64_encode($partes[0]);
-    $payload = base64_encode($partes[1]);
-    $sign = base64_decode($partes[2]);
+    $header = $partes[0];
+    $payload = $partes[1];
+    $sign = $partes[2];
 
-    $signVerfi = hash_hmac('sha256', $header . "." . $payload, $key, true);
+    $signVerfi = base64_encode(hash_hmac('sha256', $header . "." . $payload, $key, true));
 
-    if ($sign !== $signVerfi) {
-        return false;
+    if ($sign === $signVerfi) {
+        //$header = json_encode(base64_decode($header));
+        $payload = json_encode(base64_decode($payload));
+        return $payload;
     }
-
-    //$header = json_encode($header);
-    $payload = json_encode($payload);
-
-    return $payload;
+    return false;
 }
