@@ -14,7 +14,10 @@ try {
     $url = [];
     //Cabeçalho comum da aplicação
     header("Access-Control-Allow-Origin: *");
+    header("Access-Control-Allow-Methods: POST, GET, PUT, OPTIONS");
     header("Content-Type: application/json; charset=UTF-8");
+    header("Access-Control-Max-Age: 3600"); //1hora == 3600 seg
+    header("Access-Control-Allow-Headers: origin, Content-Type, X-Requested-With");
 
     //Validação de rotas
     $method = isset($_SERVER["REQUEST_METHOD"]) ? $_SERVER["REQUEST_METHOD"] : null;
@@ -24,25 +27,31 @@ try {
     // }else{
     //     $method = null;
     // }
-
     if ($method != null) {
         $url = explode("/", $_SERVER["REQUEST_URI"]);
         array_shift($url);
         array_shift($url);
 
-        $result = authentic($method, $url); //Comentar para gravar sem validar o usuarios
+        $auth = authentic($method, $url);
 
+        //Verifica validação do usuario
+        if ($auth != null && $url[count($url) - 1] == "logon") {
+            $httpCod = 200;
+            $result = $auth;
+        } else if ($auth != null) {
+            $httpCod = 200;
+            $result = route($method, $url);
+        } else {
+            $httpCod = 401;
+            $result = "Usuario sem autorização";
+        }
+
+        //A resposta se não existir errose se existirem dados
+        http_response_code($httpCod);
+        echo json_encode(array("result" => $result));
     } else {
         throw new Exception();
     };
-
-    if ($result == null) {
-        $result = route($method, $url);
-    }
-
-    //A resposta se não existir errose se existirem dados
-    http_response_code(200);
-    echo json_encode(array("result" => $result));
 } catch (Exception $e) {
     http_response_code(404);
     echo json_encode(array("result" => "Pagina não encontrada!"));
